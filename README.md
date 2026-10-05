@@ -40,13 +40,13 @@ Modern hospitals handle thousands of concurrent transactions across distinct med
 
 ## 📊 Review Presentations Suite
 
-The repository contains PowerPoint (`.pptx`) decks and browser-based interactive slides (`.html`) for all three reviews:
+The repository contains PowerPoint (`.pptx`) decks for all three course evaluation reviews:
 
 | Milestone | Deck Title & File | Format | Key Highlights |
 | :--- | :--- | :---: | :--- |
-| **Review 1**<br>*(Week 7 — 5 Marks)* | [Hospital_DBMS_Review1_Presentation.pptx](Hospital_DBMS_Review1_Presentation.pptx)<br>[presentation.html](presentation.html) | `.pptx`<br>`.html` | • System boundaries, scope & 6 user roles<br>• Classical Chen Notation ER Diagram (300 DPI)<br>• Initial Relational Schema across 3 domains<br>• 4 critical business rules & constraints |
-| **Review 2**<br>*(Week 11 — 5 Marks)* | [Hospital_DBMS_Review2_Presentation.pptx](Hospital_DBMS_Review2_Presentation.pptx)<br>[presentation_review2.html](presentation_review2.html) | `.pptx`<br>`.html` | • 1NF ➔ 2NF ➔ 3NF Normalization pipeline<br>• Structured Data Dictionary & Functional Dependencies<br>• DDL triggers (Overlap, Bed Lock, Payments)<br>• 14 Demonstration queries (Joins, Subqueries, Aggregations, 5 Views) |
-| **Review 3**<br>*(Week 16 — Final 5 Marks)* | [Hospital_DBMS_Review3_Presentation.pptx](Hospital_DBMS_Review3_Presentation.pptx)<br>[presentation_review3.html](presentation_review3.html) | `.pptx`<br>`.html` | • 3-Tier Application Architecture<br>• Full Clinical CRUD workflows (Intake ➔ Booking ➔ Diagnosis ➔ Beds ➔ Billing)<br>• Defensive Error Handling demonstration<br>• 10-Point Test Execution Matrix & Viva defense |
+| **Review 1**<br>*(Week 7 — 5 Marks)* | [Hospital_DBMS_Review1_Presentation.pptx](Hospital_DBMS_Review1_Presentation.pptx) | `.pptx` | • System boundaries, scope & 6 user roles<br>• Classical Chen Notation ER Diagram<br>• Initial Relational Schema across 3 domains<br>• 4 critical business rules & constraints |
+| **Review 2**<br>*(Week 11 — 5 Marks)* | [Hospital_DBMS_Review2_Presentation.pptx](Hospital_DBMS_Review2_Presentation.pptx) | `.pptx` | • 1NF ➔ 2NF ➔ 3NF Normalization pipeline<br>• Structured Data Dictionary & Functional Dependencies<br>• DDL triggers (Overlap, Bed Lock, Payments)<br>• 14 Demonstration queries (Joins, Subqueries, Aggregations, 5 Views) |
+| **Review 3**<br>*(Week 16 — Final 5 Marks)* | [Hospital_DBMS_Review3_Presentation.pptx](Hospital_DBMS_Review3_Presentation.pptx) | `.pptx` | • 3-Tier Application Architecture<br>• Full Clinical CRUD workflows (Intake ➔ Booking ➔ Diagnosis ➔ Beds ➔ Billing)<br>• Defensive Error Handling demonstration<br>• 10-Point Test Execution Matrix & Viva defense |
 
 ---
 
@@ -203,34 +203,10 @@ The database includes 5 precompiled views providing abstracted, role-tailored ac
 ```
 DBMS_PBL/
 ├── README.md                                # Comprehensive Project & Usage Guide
-├── app.py                                   # Working Prototype Python Application (Web & CLI)
-│
-├── 📊 PowerPoint Presentations (.pptx)
-│   ├── Hospital_DBMS_Review1_Presentation.pptx  # Review 1 Deck (9 slides, Chen ER & Schema)
-│   ├── Hospital_DBMS_Review2_Presentation.pptx  # Review 2 Deck (8 slides, 3NF, Triggers, Views)
-│   └── Hospital_DBMS_Review3_Presentation.pptx  # Review 3 Final Deck (8 slides, Architecture & Demo)
-│
-├── 🌐 Interactive Web Presentations (.html)
-│   ├── presentation.html                    # Review 1 interactive slides (with 300 DPI Chen ER)
-│   ├── presentation_review2.html            # Review 2 interactive slides
-│   ├── presentation_review3.html            # Review 3 interactive slides
-│   └── hospital_er_diagram.png              # High-resolution classical Chen ER diagram
-│
-├── 💾 Database Scripts & Live Engine
-│   ├── hospital_review2.db                  # Pre-populated live SQLite relational database
-│   ├── schema_review1.sql                   # Review 1 initial relational schema DDL
-│   ├── schema_review2.sql                   # Review 2 production 3NF DDL with triggers & 5 views
-│   ├── sample_data_review2.sql              # Realistic clinical sample dataset
-│   └── queries_review2.sql                  # 14 demonstration queries suite
-│
-├── 📑 Reports & Viva Defense Dossiers
-│   ├── Project_Report_Final.md              # Complete University PBL Final Project Report
-│   ├── Data_Dictionary_and_Normalization.md # 3NF decomposition proofs & structured data dictionary
-│   ├── Review1_Comprehensive_Guide.md       # Review 1 Presenter script & defense notes
-│   ├── Review2_Comprehensive_Guide.md       # Review 2 Presenter script & query guide
-│   └── Review3_Comprehensive_Guide.md       # Review 3 Presenter script & 25+ Viva Q&A
-│
-└── 📦 Hospital_DBMS_Package/                # Standalone packaged distribution folder
+├── app.py                                   # Standalone Application Prototype (Web GUI + CLI)
+├── Hospital_DBMS_Review1_Presentation.pptx  # Review 1 Deck (Chen ER, Scope & Schema)
+├── Hospital_DBMS_Review2_Presentation.pptx  # Review 2 Deck (3NF, Triggers & 5 Views)
+└── Hospital_DBMS_Review3_Presentation.pptx  # Review 3 Final Deck (Architecture & Prototype)
 ```
 
 ---

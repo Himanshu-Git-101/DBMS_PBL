@@ -11,3 +11,25 @@ __pycache__/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Database local runtime files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local project artifacts (excluded from GitHub repository)
+*.sql
+*.html
+*.png
+Hospital_DBMS_Package/
+Data_Dictionary_and_Normalization.md
+Project_Report_Final.md
+Review1_Comprehensive_Guide.md
+Review2_Comprehensive_Guide.md
+Review3_Comprehensive_Guide.md
+build_creative_presentations.py
+generate_chen_er_diagram.py
+generate_deck.py
+generate_deck_review2.py
+generate_deck_review3.py
+generate_er_diagram.py
