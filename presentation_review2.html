@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital DBMS — Review 2 Presentation (Week 11)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0B1329;
+      --card-dark: #111E38;
+      --border-dark: #1E293B;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --bg-light: #F8FAFC;
+      --teal: #0D9488;
+      --teal-light: #CCFBF1;
+      --blue: #0284C7;
+      --blue-light: #E0F2FE;
+      --purple: #7C3AED;
+      --purple-light: #EDE9FE;
+      --amber: #D97706;
+      --amber-light: #FEF3C7;
+      --rose: #DB2777;
+      --rose-light: #FCE7F3;
+      --green: #059669;
+      --green-light: #D1FAE5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #020617;
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: #0B1329;
+      border-bottom: 1px solid #1E293B;
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #F8FAFC;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .badge-pill {
+      background: rgba(13, 148, 136, 0.2);
+      color: #2DD4BF;
+      border: 1px solid #0D9488;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .nav-controls { display: flex; align-items: center; gap: 10px; }
+    button {
+      background: #1E293B;
+      color: #F8FAFC;
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover { background: #334155; color: #38BDF8; }
+    button.primary { background: #0D9488; border-color: #14B8A6; }
+    button.primary:hover { background: #0F766E; }
+
+    /* Slide Deck Container */
+    #slide-viewport {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      position: relative;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1280px;
+      height: calc(100vh - 120px);
+      max-height: 720px;
+      background: var(--bg-light);
+      border-radius: 14px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      padding: 36px 44px;
+      position: relative;
+      overflow-y: auto;
+      border: 1px solid #334155;
+    }
+    .slide.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Dark Slide Style */
+    .slide.dark-slide {
+      background: var(--bg-dark);
+      color: #F8FAFC;
+      border-color: #1E293B;
+    }
+
+    /* Slide Headers */
+    .slide-eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .slide-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .dark-slide .slide-subtitle { color: #94A3B8; }
+
+    /* Grids & Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark-slide .card {
+      background: var(--card-dark);
+      border-color: #1E293B;
+      color: #E2E8F0;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--card-accent, var(--teal));
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--card-accent, var(--teal));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card ul {
+      list-style: none;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .card li {
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 18px;
+    }
+    .card li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--card-accent, var(--teal));
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .code-box {
+      background: #0B1329;
+      color: #38BDF8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-top: 10px;
+      border: 1px solid #1E293B;
+      white-space: pre-wrap;
+    }
+
+    /* Notes Drawer */
+    #notes-drawer {
+      display: none;
+      background: #0F172A;
+      color: #E2E8F0;
+      border-top: 1px solid #334155;
+      padding: 14px 24px;
+      font-size: 13px;
+      max-height: 140px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+    #notes-drawer.open { display: block; }
+    .notes-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: #F59E0B;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: white; overflow: visible; height: auto; }
+      header, #notes-drawer { display: none !important; }
+      #slide-viewport { padding: 0; display: block; }
+      .slide {
+        display: block !important;
+        page-break-after: always;
+        max-width: 100%;
+        height: 100vh;
+        max-height: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <span class="badge-pill">REVIEW 2 • WEEK 11</span>
+      <span style="font-weight:700; font-size:14px;">Hospital DBMS — 3NF Normalization & SQL Suite</span>
+    </div>
+    <div class="nav-controls">
+      <span id="slide-num" style="font-size:13px; font-weight:600; color:#94A3B8; margin-right:8px;">1 / 8</span>
+      <button onclick="prevSlide()">◀ Prev (←)</button>
+      <button onclick="nextSlide()">Next (→) ▶</button>
+      <button onclick="toggleNotes()">Speaker Notes (N)</button>
+      <button onclick="toggleFullscreen()">Fullscreen (F)</button>
+      <button class="primary" onclick="window.print()">Print / PDF</button>
+    </div>
+  </header>
+
+  <main id="slide-viewport">
+
+    <!-- SLIDE 1: TITLE SLIDE -->
+    <div class="slide dark-slide active" data-notes="Good morning evaluators. Today we present Review 2 for Project 03: Hospital Appointment and Patient Care Management System. We cover relational normalization up to 3NF, schema DDL with business integrity triggers, 5 production views, and complex SQL query demonstrations.">
+      <div style="margin-top: 30px;">
+        <span class="slide-eyebrow" style="background:#0D9488; color:#FFFFFF;">DBMS PBL • REVIEW 2 (WEEK 11 — 5 MARKS)</span>
+        <h1 class="slide-title" style="font-size:36px; margin: 12px 0 8px 0; color:#FFFFFF;">Hospital Appointment &amp; Patient Care Management System</h1>
+        <p class="slide-subtitle" style="font-size:15px; color:#94A3B8; margin-bottom: 34px;">3NF Relational Decomposition, DDL Integrity Triggers, 5 Production Views &amp; SQL Query Suite</p>
+      </div>
+
+      <div class="grid-4" style="margin-top: 20px;">
+        <div class="card" style="--card-accent: var(--teal);">
+          <div class="card-title">3NF Normalization</div>
+          <ul>
+            <li>Mathematical 1NF, 2NF, 3NF decomposition</li>
+            <li>Zero redundant storage &amp; no partial/transitive FDs</li>
+            <li>All determinants are superkeys</li>
+          </ul>
+        </div>
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">Integrity Verification</div>
+          <ul>
+            <li>No overlapping doctor slots</li>
+            <li>Single active patient per bed lock</li>
+            <li>Admission chronological validation</li>
+            <li>Positive charges &amp; payment ceiling</li>
+          </ul>
+        </div>
+        <div class="card" style="--card-accent: var(--purple);">
+          <div class="card-title">5 Production Views</div>
+          <ul>
+            <li>Longitudinal patient history</li>
+            <li>Doctor roster &amp; slot availability</li>
+            <li>Pending lab tests worklist</li>
+            <li>Ward bed census &amp; occupancy rate</li>
+            <li>Outstanding bills &amp; revenue</li>
+          </ul>
+        </div>
+        <div class="card" style="--card-accent: var(--amber);">
+          <div class="card-title">Database Prototype</div>
+          <ul>
+            <li>Fully executed on SQLite &amp; Postgres</li>
+            <li>15 patients, 12 doctors, 25 beds, 12 bills</li>
+            <li>14 demonstration queries executed with 100% success</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: 3NF NORMALIZATION -->
+    <div class="slide" data-notes="Slide 2 presents our 3NF normalization journey. 1NF eliminated multi-valued medication lists and test arrays by creating prescription_items and test_orders. 2NF removed partial dependencies on composite keys. 3NF separated transitive dependencies like doctor to department and bed to ward into independent master tables.">
+      <span class="slide-eyebrow" style="background:var(--blue-light); color:var(--blue);">DELIVERABLE 1 • NORMALIZATION</span>
+      <h2 class="slide-title">Relational Normalization Up to 3NF</h2>
+      <p class="slide-subtitle">Systematic elimination of insertion, update, and deletion anomalies across the clinical schema</p>
+
+      <div class="grid-3">
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">First Normal Form (1NF)</div>
+          <ul>
+            <li><strong>Atomic Domains:</strong> All table columns contain single scalar values.</li>
+            <li><strong>Repeating Groups Decomposed:</strong> Multi-medication prescriptions extracted into <code>prescription_items</code>.</li>
+            <li><strong>Diagnostics Extracted:</strong> Multi-test orders separated into <code>test_orders</code> associative bridge.</li>
+            <li><strong>Primary Keys Identified:</strong> Unique surrogate keys guarantee tuple identity.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--purple);">
+          <div class="card-title">Second Normal Form (2NF)</div>
+          <ul>
+            <li><strong>1NF Satisfied:</strong> No partial functional dependencies on composite candidate keys.</li>
+            <li><strong>Prescription Details:</strong> <code>prescription_id &rarr; date</code> separated from <code>item_id &rarr; dosage, frequency</code>.</li>
+            <li><strong>Diagnostic Details:</strong> <code>test_id &rarr; standard_cost</code> separated from <code>order_id &rarr; result_value</code>.</li>
+            <li>Every non-prime attribute depends on the entire candidate key.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--teal);">
+          <div class="card-title">Third Normal Form (3NF)</div>
+          <ul>
+            <li><strong>2NF Satisfied:</strong> No transitive dependencies (<code>X &rarr; Y, Y &rarr; Z</code>).</li>
+            <li><strong>Doctor &amp; Dept Split:</strong> <code>doctor_id &rarr; dept_id</code>, while <code>dept_id &rarr; dept_name, floor</code>.</li>
+            <li><strong>Ward &amp; Bed Split:</strong> <code>bed_id &rarr; ward_id</code>, while <code>ward_id &rarr; ward_type, capacity</code>.</li>
+            <li>Every non-trivial functional dependency has a Superkey determinant.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: DATA DICTIONARY -->
+    <div class="slide" data-notes="Slide 3 summarizes our concise data dictionary. We have grouped our 16 tables across Outpatient, Clinical Diagnostics, and Inpatient Billing, clearly establishing data types, foreign key cascading behaviors, and domain validation checks.">
+      <span class="slide-eyebrow" style="background:var(--purple-light); color:var(--purple);">DELIVERABLE 1 • DATA DICTIONARY</span>
+      <h2 class="slide-title">Concise Data Dictionary Across Modules</h2>
+      <p class="slide-subtitle">Structured schema specification defining primary keys, foreign keys, and domain checks</p>
+
+      <div class="grid-3">
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">Outpatient &amp; Scheduling</div>
+          <ul>
+            <li><code>departments</code>: dept_id (PK), dept_name (UQ), floor_number (CHECK &ge; 0)</li>
+            <li><code>doctors</code>: doctor_id (PK), dept_id (FK), fee (CHECK &ge; 0), email (UQ)</li>
+            <li><code>doctor_schedules</code>: schedule_id (PK), doctor_id (FK), CHECK(end &gt; start)</li>
+            <li><code>patients</code>: patient_id (PK), phone (UQ), dob (DATE), gender (CHECK)</li>
+            <li><code>appointments</code>: appointment_id (PK), UQ(doctor_id, date, start_time)</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--purple);">
+          <div class="card-title">Clinical &amp; Diagnostics</div>
+          <ul>
+            <li><code>consultations</code>: consultation_id (PK), appointment_id (FK UQ 1:1)</li>
+            <li><code>diagnoses</code>: diagnosis_id (PK), consultation_id (FK), icd10_code, severity</li>
+            <li><code>prescriptions</code>: prescription_id (PK), consultation_id (FK), date</li>
+            <li><code>prescription_items</code>: item_id (PK), prescription_id (FK), duration &gt; 0</li>
+            <li><code>lab_tests</code>: test_id (PK), test_code (UQ), standard_cost (CHECK &ge; 0)</li>
+            <li><code>test_orders</code>: order_id (PK), consultation_id (FK), test_id (FK), status</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--amber);">
+          <div class="card-title">Inpatient &amp; Billing</div>
+          <ul>
+            <li><code>wards</code>: ward_id (PK), ward_name (UQ), ward_type (CHECK), capacity &gt; 0</li>
+            <li><code>beds</code>: bed_id (PK), ward_id (FK), bed_number, daily_rate &ge; 0</li>
+            <li><code>admissions</code>: admission_id (PK), bed_id (FK), CHECK(discharge &ge; admit)</li>
+            <li><code>bills</code>: bill_id (PK), CHECK(paid &le; net), CHECK(net = total - disc + tax)</li>
+            <li><code>payments</code>: payment_id (PK), bill_id (FK), amount_paid (CHECK &gt; 0)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: CRITICAL CONSTRAINTS & TRIGGERS -->
+    <div class="slide" data-notes="Slide 4 highlights the four critical business rules enforced at the database level. Overlapping doctor appointments are aborted via trigger logic. Dual bed occupancy is prevented. Discharge dates must follow admission dates. Financial charges are non-negative and payments are capped by net payable.">
+      <span class="slide-eyebrow" style="background:var(--rose-light); color:var(--rose);">DELIVERABLE 2 • INTEGRITY VERIFICATION</span>
+      <h2 class="slide-title">Enforcing Critical Hospital Business Rules</h2>
+      <p class="slide-subtitle">Schema constraints, check predicates, and DDL triggers preventing clinical and financial collisions</p>
+
+      <div class="grid-2">
+        <div class="card" style="--card-accent: var(--rose);">
+          <div class="card-title">1. No Overlapping Appointments</div>
+          <ul>
+            <li><strong>Trigger:</strong> <code>trg_prevent_appointment_overlap</code></li>
+            <li><strong>Enforcement Logic:</strong> Aborts insert if <code>NEW.start_time &lt; end_time AND NEW.end_time &gt; start_time</code> for active clinician appointments.</li>
+            <li><strong>Result:</strong> Double-booking doctors is mathematically impossible.</li>
+          </ul>
+          <div class="code-box">WHERE doctor_id = NEW.doctor_id AND appointment_date = NEW.appointment_date
+  AND (NEW.start_time &lt; end_time AND NEW.end_time &gt; start_time)</div>
+        </div>
+
+        <div class="card" style="--card-accent: var(--teal);">
+          <div class="card-title">2. One Active Patient Per Bed</div>
+          <ul>
+            <li><strong>Trigger:</strong> <code>trg_prevent_bed_double_booking</code></li>
+            <li><strong>Partial Index:</strong> <code>CREATE UNIQUE INDEX ON admissions(bed_id) WHERE status='ACTIVE'</code></li>
+            <li><strong>Result:</strong> Disallows admitting a patient to a bed already housing an active inpatient.</li>
+          </ul>
+          <div class="code-box">WHEN NEW.status = 'ACTIVE' AND EXISTS (
+    SELECT 1 FROM admissions WHERE bed_id = NEW.bed_id AND status = 'ACTIVE')</div>
+        </div>
+
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">3. Valid Admission / Discharge Dates</div>
+          <ul>
+            <li><strong>Check Constraint:</strong> <code>CHECK (discharge_date IS NULL OR discharge_date &gt;= admission_date)</code></li>
+            <li><strong>Chronological Guard:</strong> Inpatients cannot have discharge timestamps earlier than their intake.</li>
+            <li><strong>Result:</strong> Preserves valid duration of hospital stay.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--green);">
+          <div class="card-title">4. Positive Charges &amp; Payment Limits</div>
+          <ul>
+            <li><strong>Positive Checks:</strong> <code>total_amount &ge; 0</code>, <code>amount_paid &gt; 0</code></li>
+            <li><strong>Payment Ceiling:</strong> <code>CHECK (paid_amount &le; net_payable)</code></li>
+            <li><strong>Payment Trigger:</strong> Auto-updates <code>paid_amount</code> and transitions status to <code>PAID</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: JOINS & SUBQUERIES -->
+    <div class="slide" data-notes="Slide 5 displays our SQL query demonstrations. We executed multi-table joins across 5 to 6 tables to track full patient encounters and inpatient ward stays. We used scalar subqueries to find above-average bills and correlated subqueries for doctor caseloads.">
+      <span class="slide-eyebrow" style="background:var(--blue-light); color:var(--blue);">DELIVERABLE 3 • SQL DEMONSTRATIONS</span>
+      <h2 class="slide-title">Multi-Table Joins &amp; Advanced Subqueries</h2>
+      <p class="slide-subtitle">Relational queries extracting connected clinical narratives and benchmark analyses</p>
+
+      <div class="grid-2">
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">Complex Multi-Table Joins</div>
+          <ul>
+            <li><strong>Longitudinal Clinical History (5 Tables):</strong> Joins <code>patients &rarr; appointments &rarr; doctors &rarr; consultations &rarr; diagnoses</code> to present complete diagnostic records.</li>
+            <li><strong>Active Inpatient Census (6 Tables):</strong> Joins <code>admissions &rarr; patients &rarr; beds &rarr; wards &rarr; doctors &rarr; departments</code> with length of stay calculation.</li>
+            <li><strong>Diagnostic Order Tracker (4 Tables):</strong> Joins <code>test_orders &rarr; lab_tests &rarr; consultations &rarr; doctors</code> with turnaround monitoring.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--purple);">
+          <div class="card-title">Scalar &amp; Correlated Subqueries</div>
+          <ul>
+            <li><strong>Above-Average Billing Subquery:</strong>
+              <div class="code-box">HAVING SUM(b.net_payable) &gt; (SELECT AVG(net_payable) FROM bills)</div>
+              Filters high-utilization patients exceeding overall hospital benchmark.
+            </li>
+            <li><strong>Departmental Top Caseload:</strong> Correlated subquery identifying the busiest clinician per clinical department.</li>
+            <li><strong>Vacant Bed Finder:</strong> Uses <code>WHERE bed_id NOT IN (SELECT bed_id FROM admissions WHERE status='ACTIVE')</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: AGGREGATIONS & METRICS -->
+    <div class="slide" data-notes="Slide 6 demonstrates SQL aggregations using GROUP BY and HAVING. We calculate department-wise collection recovery rates, ICD-10 morbidity prevalence percentages, and ward-wise bed occupancy percentages with daily revenue yields.">
+      <span class="slide-eyebrow" style="background:var(--amber-light); color:var(--amber);">DELIVERABLE 3 • AGGREGATIONS</span>
+      <h2 class="slide-title">SQL Aggregations &amp; Hospital Analytics</h2>
+      <p class="slide-subtitle">Analytical SQL queries with GROUP BY and HAVING calculating vital healthcare KPIs</p>
+
+      <div class="grid-3">
+        <div class="card" style="--card-accent: var(--teal);">
+          <div class="card-title">Department Revenue Recovery</div>
+          <ul>
+            <li>Aggregates encounters, gross billed amount, and actual collections per department.</li>
+            <li><strong>Formula:</strong> <code>(SUM(paid) / SUM(net)) * 100</code></li>
+            <li>Identifies top revenue generating wings (Cardiology &amp; Surgery) and unpaid receivables.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--amber);">
+          <div class="card-title">ICD-10 Morbidity Statistics</div>
+          <ul>
+            <li>Groups diagnostic encounters by ICD-10 classification codes.</li>
+            <li><strong>Prevalence %:</strong> <code>(COUNT(diag) * 100.0 / Total)</code></li>
+            <li>Highlights disease incidence (Unstable Angina, Type 2 Diabetes, Knee Osteoarthritis).</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--rose);">
+          <div class="card-title">Ward Occupancy Census Rate</div>
+          <ul>
+            <li>Ward capacity vs operational beds and active inpatients.</li>
+            <li><strong>Occupancy %:</strong> <code>(Active Beds * 100.0) / Total Beds</code></li>
+            <li><strong>Daily Yield:</strong> <code>SUM(daily_rate)</code> for all currently occupied beds.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: 5 PRODUCTION VIEWS -->
+    <div class="slide" data-notes="Slide 7 presents the 5 production database views created for the project. These views encapsulate complex queries to provide fast, role-tailored abstractions for patient history, doctor rosters, pending lab investigations, bed census, and financial accounts.">
+      <span class="slide-eyebrow" style="background:var(--purple-light); color:var(--purple);">DELIVERABLE 3 • DATABASE VIEWS</span>
+      <h2 class="slide-title">5 Production Analytical Database Views</h2>
+      <p class="slide-subtitle">Permanent SQL views providing abstracted, secure, and performant data access</p>
+
+      <div class="grid-3" style="margin-bottom: 16px;">
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">view_patient_history</div>
+          <ul>
+            <li>Longitudinal medical summary</li>
+            <li>Visits, doctors, symptoms, primary diagnoses, and prescribed medicine/lab counts.</li>
+          </ul>
+        </div>
+        <div class="card" style="--card-accent: var(--teal);">
+          <div class="card-title">view_doctor_schedules</div>
+          <ul>
+            <li>Clinician Duty &amp; Slot Roster</li>
+            <li>Shift hours, slot durations, daily capacity, and currently booked vs free slots.</li>
+          </ul>
+        </div>
+        <div class="card" style="--card-accent: var(--amber);">
+          <div class="card-title">view_pending_tests</div>
+          <ul>
+            <li>Laboratory Worklist Tracker</li>
+            <li>Monitors tests in ORDERED or PROCESSING state with turnaround hour alerts.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" style="--card-accent: var(--purple);">
+          <div class="card-title">view_bed_occupancy</div>
+          <ul>
+            <li>Real-time Inpatient Census</li>
+            <li>Ward operational capacity, active occupants, vacancy, and occupancy percentage.</li>
+          </ul>
+        </div>
+        <div class="card" style="--card-accent: var(--rose);">
+          <div class="card-title">view_outstanding_bills_revenue</div>
+          <ul>
+            <li>Hospital Financial Accounts Ledger</li>
+            <li>Inpatient vs outpatient invoices, total billed, receipts, and outstanding debtor balances.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: PROTOTYPE DEMO & CONCLUSION -->
+    <div class="slide dark-slide" data-notes="Slide 8 concludes Review 2. All 5/5 marks criteria are fulfilled: normalized 3NF schema, DDL triggers, 14 query demonstrations, and a verified database prototype. We are ready for live demonstration and evaluator questions.">
+      <span class="slide-eyebrow" style="background:var(--teal); color:#FFFFFF;">DELIVERABLE 4 • EVALUATION READINESS</span>
+      <h2 class="slide-title" style="color:#FFFFFF;">Implementation Progress &amp; Prototype Demo</h2>
+      <p class="slide-subtitle" style="color:#94A3B8;">Milestone achievements, database execution verification, and readiness for Review 3</p>
+
+      <div class="grid-3" style="margin-top: 20px;">
+        <div class="card" style="--card-accent: var(--teal);">
+          <div class="card-title">Review 2 Milestones Achieved</div>
+          <ul>
+            <li><strong>3NF Relational Schema:</strong> 16 tables fully normalized with formal FDs.</li>
+            <li><strong>Integrity Triggers:</strong> Slot collision, bed locks, and payment ceiling verified.</li>
+            <li><strong>Populated Dataset:</strong> Realistic dataset covering OPD, IPD, and labs.</li>
+            <li><strong>Query Suite:</strong> 14/14 queries executed with 100% test pass rate.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--blue);">
+          <div class="card-title">Live Prototype Demonstration</div>
+          <ul>
+            <li><strong>Database Engine:</strong> Live relational SQLite &amp; PostgreSQL engine.</li>
+            <li><strong>Live Constraints:</strong> Verified live rejection of overlapping bookings.</li>
+            <li><strong>Analytical Views:</strong> 1-click execution of all 5 production views.</li>
+            <li><strong>Dual Demo Modes:</strong> Interactive Web application and CLI interface.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="--card-accent: var(--purple);">
+          <div class="card-title">Roadmap to Review 3 (Week 16)</div>
+          <ul>
+            <li><strong>Application GUI:</strong> Interactive Python web dashboard with live forms.</li>
+            <li><strong>Full Clinical CRUD:</strong> Patient intake, consultations, bed admissions, billing.</li>
+            <li><strong>Final Project Report:</strong> Architecture, test cases, and viva-voce dossier.</li>
+            <li><strong>Final University Evaluation:</strong> Ready for 5/5 marks defense.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="notes-drawer">
+    <div class="notes-tag">SPEAKER NOTES</div>
+    <div id="notes-content">Notes will appear here...</div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const slideNum = document.getElementById('slide-num');
+    const notesDrawer = document.getElementById('notes-drawer');
+    const notesContent = document.getElementById('notes-content');
+    let currentSlide = 0;
+
+    function updateSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+      slideNum.textContent = `${currentSlide + 1} / ${slides.length}`;
+      notesContent.textContent = slides[currentSlide].getAttribute('data-notes') || 'No speaker notes for this slide.';
+    }
+
+    function prevSlide() { updateSlide(currentSlide - 1); }
+    function nextSlide() { updateSlide(currentSlide + 1); }
+    function toggleNotes() { notesDrawer.classList.toggle('open'); }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key.toLowerCase() === 'n') toggleNotes();
+      if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    });
+
+    updateSlide(0);
+  </script>
+</body>
+</html>

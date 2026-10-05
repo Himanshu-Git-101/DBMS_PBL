@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital DBMS - Review 1 Presentation (Expanded Schema)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #0b1329;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-card-hover: rgba(30, 41, 59, 0.95);
+      --border-card: rgba(255, 255, 255, 0.12);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-sub: #cbd5e1;
+      
+      --c-teal: #14b8a6;
+      --c-teal-light: #5eead4;
+      --c-blue: #38bdf8;
+      --c-purple: #a855f7;
+      --c-amber: #f59e0b;
+      --c-rose: #f43f5e;
+      --c-green: #10b981;
+
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Progress Bar */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--c-teal), var(--c-blue), var(--c-purple));
+      width: 11%;
+      z-index: 100;
+      transition: width 0.3s ease;
+    }
+
+    /* Deck Container */
+    #deck-container {
+      flex: 1;
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - 65px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Slide Card */
+    .slide {
+      position: absolute;
+      width: 94vw;
+      max-width: 1420px;
+      height: 86vh;
+      max-height: 880px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border-card);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 28px 36px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+    }
+
+    /* Header */
+    .slide-header {
+      margin-bottom: 16px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-card);
+      padding-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--c-teal-light);
+      background: rgba(20, 184, 166, 0.15);
+      border: 1px solid rgba(20, 184, 166, 0.4);
+      padding: 3px 12px;
+      border-radius: 9999px;
+      margin-bottom: 6px;
+    }
+
+    .slide-title {
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .slide-subtitle {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    /* Layout Grids */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+    /* Modern Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .card.teal-border { border-top: 4px solid var(--c-teal); }
+    .card.blue-border { border-top: 4px solid var(--c-blue); }
+    .card.purple-border { border-top: 4px solid var(--c-purple); }
+    .card.amber-border { border-top: 4px solid var(--c-amber); }
+    .card.rose-border { border-top: 4px solid var(--c-rose); }
+    .card.green-border { border-top: 4px solid var(--c-green); }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      font-size: 0.92rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .card-body ul { margin-left: 20px; }
+    .card-body li { margin-bottom: 10px; }
+
+    /* Expanded Table Cards */
+    .table-card {
+      background: #0f172a;
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .table-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: #1e293b;
+    }
+
+    .table-card-header {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+    }
+
+    .table-row-item {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      line-height: 1.45;
+    }
+
+    .pill-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      margin-right: 6px;
+    }
+    .pill-pk { background: rgba(253, 224, 71, 0.15); color: #fde047; border: 1px solid #eab308; }
+    .pill-fk { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #0284c7; }
+    .pill-uq { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid #f43f5e; }
+
+    /* Image Container for ER Diagram Slide */
+    .er-image-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      border-radius: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 8px;
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+
+    .er-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    .er-image-container:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Bottom Control Bar */
+    #deck-controls {
+      height: 65px;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid var(--border-card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-card);
+      color: var(--text-main);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--c-teal);
+      color: #030712;
+      border-color: var(--c-teal);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn-group { display: flex; align-items: center; gap: 12px; }
+
+    #slide-indicator {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Speaker Notes Modal */
+    #notes-modal {
+      position: fixed;
+      bottom: 75px;
+      right: 32px;
+      width: 460px;
+      max-height: 400px;
+      background: #0f172a;
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+      z-index: 99;
+      overflow-y: auto;
+    }
+
+    #notes-modal.show { display: flex; }
+
+    .notes-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--c-teal-light);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notes-body {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    @media print {
+      body { overflow: visible; background: white; color: black; }
+      #deck-controls, #progress-bar, #notes-modal { display: none !important; }
+      #deck-container { display: block; padding: 0; height: auto; }
+      .slide {
+        position: relative;
+        opacity: 1 !important;
+        transform: none !important;
+        display: flex !important;
+        page-break-after: always;
+        width: 100%;
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        border: none;
+        background: white;
+        color: black;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div id="deck-container">
+
+    <!-- SLIDE 1: Title -->
+    <div class="slide active" data-notes="Welcome evaluators. Today we present Review 1 for Project 03: Design and Implementation of a Database Management System for Hospital Appointment and Patient Care Management System. In this presentation, we cover problem analysis, boundaries, classical Chen ER modeling across all 13 core entities, our 3NF relational schema across three clear domains, and database integrity rules.">
+      <div class="slide-header">
+        <div class="badge">Project 03 • DBMS PBL • Review 1 (Week 7)</div>
+        <h1 class="slide-title" style="font-size: 2.6rem; margin-top: 6px;">Hospital Appointment & Patient Care<br /><span style="color: var(--c-teal);">Management System</span></h1>
+        <p class="slide-subtitle" style="font-size: 1.15rem; margin-top: 8px;">Problem Analysis, Conceptual Chen ER Architecture & 3NF Relational Schema</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-3" style="margin-top: 24px;">
+          <div class="card blue-border">
+            <div class="card-title" style="color: var(--c-blue);">13 CORE ENTITIES</div>
+            <div class="card-body">Patients, Doctors, Departments, Schedules, Appointments, Consultations, Diagnoses, Prescriptions, Tests, Admissions, Beds, Bills, Payments.</div>
+          </div>
+          <div class="card purple-border">
+            <div class="card-title" style="color: var(--c-purple);">3NF NORMALIZATION</div>
+            <div class="card-body">16 normalized relations with atomic attributes, full functional key dependency, and zero transitive dependencies.</div>
+          </div>
+          <div class="card teal-border">
+            <div class="card-title" style="color: var(--c-teal);">STRICT INTEGRITY</div>
+            <div class="card-body">Schema-level enforcement: collision-free doctor slots, 1 active patient per bed, valid admission dates, and non-negative billing limits.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Problem Statement & Objectives -->
+    <div class="slide" data-notes="Hospitals manage appointments, consultations, prescriptions, lab tests, admissions, beds, and billing. Disconnected records create schedule conflicts and incomplete patient histories. Our objectives are to centralize records, enforce business rules directly at the schema level, and achieve 3NF normalization.">
+      <div class="slide-header">
+        <div class="badge">Context & Objectives</div>
+        <h2 class="slide-title">Problem Statement & Project Objectives</h2>
+        <p class="slide-subtitle">Addressing operational bottlenecks in disconnected hospital recordkeeping systems</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2">
+          <div class="card rose-border">
+            <div class="card-title" style="color: var(--c-rose);">The Core Problem: Disconnected Silos</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Schedule Collisions:</strong> Doctors double-booked for the exact same slot, causing 2+ hour patient wait times.</li>
+                <li><strong>Fragmented Records:</strong> Medical history, diagnoses, and lab results scattered across departmental logs.</li>
+                <li><strong>Bed Disputes:</strong> No real-time synchronization between discharge and ward bed allocation.</li>
+                <li><strong>Billing Leakage:</strong> Manual invoicing fails to consolidate room charges, tests, and pharmacy.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card teal-border">
+            <div class="card-title" style="color: var(--c-teal);">The Project Objectives</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Centralize Records:</strong> Unify all 13 clinical and administrative entities into a single relational DBMS.</li>
+                <li><strong>Enforce Schema Rules:</strong> Guarantee zero appointment overlaps and 1-patient-per-bed at DDL level.</li>
+                <li><strong>Normalize to 3NF:</strong> Eliminate insert, update, and deletion anomalies while ensuring lossless joins.</li>
+                <li><strong>End-to-End Workflow:</strong> Provide a smooth continuum from booking to bed stay and bill settlement.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: System Scope & Target Users -->
+    <div class="slide" data-notes="We demarcated clear functional boundaries: in-scope modules cover outpatient care, clinical encounters, diagnostics, bed admissions, and billing. Duties are separated across 6 distinct user roles to maintain HIPAA-inspired patient privacy and data integrity.">
+      <div class="slide-header">
+        <div class="badge">Scope & Access Control</div>
+        <h2 class="slide-title">System Scope & Target User Roles (RBAC)</h2>
+        <p class="slide-subtitle">Clear functional boundaries and role-based access control</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2">
+          <div class="card blue-border">
+            <div class="card-title" style="color: var(--c-blue);">Functional Scope (In-Scope Modules)</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Outpatient Profiles:</strong> Patient demographics and weekly doctor shift rosters.</li>
+                <li><strong>Appointment Engine:</strong> Collision-free consultation slot scheduling.</li>
+                <li><strong>Clinical Encounters:</strong> Symptoms, notes, and ICD-10 diagnostic coding.</li>
+                <li><strong>Digital Prescriptions & Tests:</strong> Normalized multi-item medication orders.</li>
+                <li><strong>Inpatient Care:</strong> Ward bed inventory with 1-active-patient-per-bed lock.</li>
+                <li><strong>Consolidated Invoicing:</strong> Itemized billing and multi-mode payments.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card purple-border">
+            <div class="card-title" style="color: var(--c-purple);">Target Users & Access Roles (RBAC)</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Administrator:</strong> Configures departments, doctors, wards, fees, and audit logs.</li>
+                <li><strong>Doctor / Clinician:</strong> Views queues, logs diagnoses, issues prescriptions & tests.</li>
+                <li><strong>Patient Portal:</strong> Discovers doctors, books slots, accesses test reports and bills.</li>
+                <li><strong>Receptionist:</strong> Registers walk-ins and checks in daily appointment queues.</li>
+                <li><strong>Ward Nurse:</strong> Allocates vacant beds and logs admission/discharge dates.</li>
+                <li><strong>Billing Cashier:</strong> Generates itemized invoices and processes payments.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: FULL VISUAL ER DIAGRAM -->
+    <div class="slide" style="padding: 18px 24px;" data-notes="This is our complete Conceptual ER Diagram structured in Classical Chen Notation matching standard textbook guidelines. Soft green rectangles are Entities; soft pink diamonds are Relationships with 1 and M cardinalities; soft blue ovals are Attributes, with Primary Keys Underlined and Foreign Keys marked (FK). All 13 core entities plus child tables are fully mapped with zero line interference.">
+      <div class="slide-header" style="margin-bottom: 8px; padding-bottom: 8px;">
+        <div class="badge">Deliverable 2 • Conceptual Design</div>
+        <h2 class="slide-title" style="font-size: 1.65rem;">Conceptual ER Diagram: Classical Chen Notation</h2>
+        <p class="slide-subtitle">Soft Green = Entity  |  Soft Pink = Relationship  |  Soft Blue = Attribute  |  Underlined = PK  |  (FK) = Foreign Key</p>
+      </div>
+      <div class="slide-content">
+        <div class="er-image-container" onclick="window.open('hospital_er_diagram.png', '_blank')">
+          <img src="hospital_er_diagram.png" alt="Hospital DBMS Complete Classical Chen Entity-Relationship Diagram" />
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: EXPANDED SCHEMA 1 - OUTPATIENT & SCHEDULING (5 Tables) -->
+    <div class="slide" data-notes="Slide 5 details the Outpatient and Scheduling Domain. Departments, doctors, and doctor schedules link seamlessly. The appointments table enforces a composite UNIQUE constraint on doctor_id, appointment_date, and start_time, preventing doctor double-booking.">
+      <div class="slide-header">
+        <div class="badge">Deliverable 3 • Relational Schema (Part 1 of 3)</div>
+        <h2 class="slide-title">Domain 1: Outpatient & Scheduling Tables</h2>
+        <p class="slide-subtitle">Departments, Doctors, Shift Schedules, Patients, and Collision-Free Appointments</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-3">
+          <div class="table-card" style="border-top: 3px solid var(--c-blue);">
+            <div class="table-card-header" style="color: var(--c-blue);">📋 departments</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>dept_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>head_doctor_id → doctors (NULLABLE)</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>dept_name (UQ)</code>, <code>building_block</code>, <code>floor_number</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-blue);">
+            <div class="table-card-header" style="color: var(--c-blue);">📋 doctors</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>doctor_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>dept_id → departments</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>first_name, last_name, specialization</code>, <code>license_no (UQ)</code>, <code>phone, email</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>consultation_fee >= 0</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-blue);">
+            <div class="table-card-header" style="color: var(--c-blue);">📋 doctor_schedules</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>schedule_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>doctor_id → doctors</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>day_of_week</code>, <code>start_time, end_time</code>, <code>slot_duration_minutes, max_patients_quota</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>end_time > start_time</code></div>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="table-card" style="border-top: 3px solid var(--c-green);">
+            <div class="table-card-header" style="color: var(--c-green);">📋 patients</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>patient_id SERIAL</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>first_name, last_name</code>, <code>date_of_birth, gender, blood_group</code>, <code>address, emergency_contact</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">UNIQUE</span> <code>phone</code>, <code>email</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-green);">
+            <div class="table-card-header" style="color: var(--c-green);">📋 appointments</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>appointment_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>patient_id → patients</code>, <span class="pill-tag pill-fk">FK</span> <code>doctor_id → doctors</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>appointment_date, start_time, end_time</code>, <code>status (BOOKED, COMPLETED, CANCELLED)</code>, <code>reason</code></div>
+            <div class="table-row-item" style="color: #f43f5e;"><span class="pill-tag pill-uq">CRITICAL UQ</span> <code>(doctor_id, appointment_date, start_time)</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: EXPANDED SCHEMA 2 - CLINICAL & DIAGNOSTICS (6 Tables) -->
+    <div class="slide" data-notes="Slide 6 details Clinical Care and Diagnostics. To adhere strictly to 3NF, multi-valued medication lines are decomposed into prescription_items, and lab tests are resolved through the test_orders bridge table. Every consultation links back to an appointment via a UNIQUE foreign key.">
+      <div class="slide-header">
+        <div class="badge">Deliverable 3 • Relational Schema (Part 2 of 3)</div>
+        <h2 class="slide-title">Domain 2: Clinical Encounters & Diagnostics (3NF)</h2>
+        <p class="slide-subtitle">Consultations, ICD-10 Diagnoses, Multi-Item Prescriptions, and Lab Investigations</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-3">
+          <div class="table-card" style="border-top: 3px solid var(--c-purple);">
+            <div class="table-card-header" style="color: var(--c-purple);">📋 consultations</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>consultation_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <span class="pill-tag pill-uq">UQ</span> <code>appointment_id → appointments</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>doctor_id, patient_id</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>consultation_date, symptoms, physical_exam, clinical_notes</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-purple);">
+            <div class="table-card-header" style="color: var(--c-purple);">📋 diagnoses</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>diagnosis_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>consultation_id → consultations</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>icd10_code, diagnosis_name</code></div>
+            <div class="table-row-item"><strong>Classification:</strong> <code>severity (MILD..CRITICAL), diagnosis_type</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-amber);">
+            <div class="table-card-header" style="color: var(--c-amber);">📋 lab_tests (Catalog)</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>test_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>dept_id → departments</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>test_name, test_code (UQ), sample_type</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>standard_cost >= 0, turnaround_hours > 0</code></div>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top: 10px;">
+          <div class="table-card" style="border-top: 3px solid var(--c-purple);">
+            <div class="table-card-header" style="color: var(--c-purple);">📋 prescriptions</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>prescription_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>consultation_id → consultations</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>prescription_date, general_advice, created_at</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-purple);">
+            <div class="table-card-header" style="color: var(--c-purple);">📋 prescription_items (3NF)</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>item_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>prescription_id → prescriptions (CASCADE)</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>medicine_name, dosage, frequency</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>duration_days > 0</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-amber);">
+            <div class="table-card-header" style="color: var(--c-amber);">📋 test_orders (Bridge)</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>order_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>consultation_id, test_id</code></div>
+            <div class="table-row-item"><strong>Pipeline:</strong> <code>status (ORDERED..COMPLETED)</code></div>
+            <div class="table-row-item"><strong>Results:</strong> <code>result_value, normal_range, doctor_comments</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: EXPANDED SCHEMA 3 - INPATIENT & BILLING (5 Tables) -->
+    <div class="slide" data-notes="Slide 7 details Inpatient Wards, Beds, and Financials. Admissions enforces two major rules: discharge_date >= admission_date, and a PostgreSQL partial unique index guaranteeing only ONE active patient per bed. The bills table consolidates room charges, doctor consultations, and lab tests into a single verifiable invoice.">
+      <div class="slide-header">
+        <div class="badge">Deliverable 3 • Relational Schema (Part 3 of 3)</div>
+        <h2 class="slide-title">Domain 3: Inpatient Beds & Consolidated Billing</h2>
+        <p class="slide-subtitle">Wards, Bed Inventory, Inpatient Admissions, Itemized Invoices, and Payment Ledger</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-3">
+          <div class="table-card" style="border-top: 3px solid var(--c-rose);">
+            <div class="table-card-header" style="color: var(--c-rose);">🛏️ wards</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>ward_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>dept_id → departments</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>ward_name (UQ)</code>, <code>ward_type (GENERAL, ICU, PRIVATE)</code>, <code>floor_number</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>capacity > 0</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-rose);">
+            <div class="table-card-header" style="color: var(--c-rose);">🛏️ beds</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>bed_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>ward_id → wards</code></div>
+            <div class="table-row-item"><strong>Attributes:</strong> <code>bed_number</code>, <code>is_operational DEFAULT TRUE</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">UNIQUE</span> <code>(ward_id, bed_number)</code> | <code>daily_rate >= 0</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-rose);">
+            <div class="table-card-header" style="color: var(--c-rose);">🛏️ admissions</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>admission_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>patient_id, bed_id, doctor_id</code></div>
+            <div class="table-row-item"><strong>Timestamps:</strong> <code>admission_date, discharge_date</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>discharge_date >= admission_date</code></div>
+            <div class="table-row-item" style="color: #f43f5e;"><span class="pill-tag pill-uq">PARTIAL UQ</span> 1 active bed/patient</div>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="table-card" style="border-top: 3px solid var(--c-teal);">
+            <div class="table-card-header" style="color: var(--c-teal);">💳 bills (Consolidated Invoices)</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>bill_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>patient_id</code>, <span class="pill-tag pill-fk">FK</span> <code>consultation_id (NULL)</code>, <span class="pill-tag pill-fk">FK</span> <code>admission_id (NULL)</code></div>
+            <div class="table-row-item"><strong>Financials:</strong> <code>total_amount, discount_amount, tax_amount, net_payable, paid_amount</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">CHECK</span> <code>total_amount >= 0 AND paid_amount <= net_payable</code></div>
+          </div>
+          <div class="table-card" style="border-top: 3px solid var(--c-teal);">
+            <div class="table-card-header" style="color: var(--c-teal);">💳 payments (Remittance Ledger)</div>
+            <div class="table-row-item"><span class="pill-tag pill-pk">PK</span> <code>payment_id SERIAL</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-fk">FK</span> <code>bill_id → bills</code></div>
+            <div class="table-row-item"><strong>Transaction:</strong> <code>payment_timestamp, amount_paid, payment_method (CASH, CARD, UPI)</code></div>
+            <div class="table-row-item"><span class="pill-tag pill-uq">UNIQUE</span> <code>transaction_ref</code> | <span class="pill-tag pill-uq">CHECK</span> <code>amount_paid > 0</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Critical Business Rules -->
+    <div class="slide" data-notes="The project brief explicitly emphasizes four business rules: no overlapping doctor appointments, one active patient per bed, valid admission/discharge dates, and positive charges with payment limits. We enforce all four directly at the database DDL level via UNIQUE constraints, partial indexes, and CHECK constraints.">
+      <div class="slide-header">
+        <div class="badge">Integrity Enforcement</div>
+        <h2 class="slide-title">Enforcement of Critical Business Rules</h2>
+        <p class="slide-subtitle">Translating hospital operational rules into database DDL constraints</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2">
+          <div class="card blue-border">
+            <div class="card-title" style="color: var(--c-blue);">1. No Overlapping Appointments</div>
+            <div class="card-body">
+              A doctor cannot be booked twice for the same date and time slot.<br /><br />
+              <code style="color: #38bdf8; font-size: 0.88rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">CONSTRAINT uq_doctor_slot UNIQUE (doctor_id, appointment_date, start_time);</code>
+            </div>
+          </div>
+          <div class="card rose-border">
+            <div class="card-title" style="color: var(--c-rose);">2. One Active Patient Per Bed</div>
+            <div class="card-body">
+              Physical impossibility of assigning multiple patients to the same bed.<br /><br />
+              <code style="color: #f43f5e; font-size: 0.88rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">CREATE UNIQUE INDEX ON admissions(bed_id) WHERE status = 'ACTIVE';</code>
+            </div>
+          </div>
+          <div class="card amber-border">
+            <div class="card-title" style="color: var(--c-amber);">3. Valid Admission & Discharge Dates</div>
+            <div class="card-body">
+              Discharge timestamp cannot precede the admission timestamp.<br /><br />
+              <code style="color: #f59e0b; font-size: 0.88rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">CHECK (discharge_date IS NULL OR discharge_date >= admission_date);</code>
+            </div>
+          </div>
+          <div class="card green-border">
+            <div class="card-title" style="color: var(--c-green);">4. Positive Charges & Payment Limits</div>
+            <div class="card-body">
+              Zero negative bills; cumulative payments cannot exceed net payable.<br /><br />
+              <code style="color: #10b981; font-size: 0.88rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">CHECK (total_amount >= 0 AND paid_amount <= net_payable AND amount_paid > 0);</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: Conclusion & Roadmap -->
+    <div class="slide" data-notes="In conclusion, all deliverables for Review 1 are fulfilled: the problem analysis, 13-entity Chen ER diagram, and 3NF schema with integrity rules are complete. Our roadmap progresses to Review 2 in Week 11 for database implementation, views, and triggers, culminating in the final application demo in Week 14. Thank you, and we welcome your questions.">
+      <div class="slide-header">
+        <div class="badge">Milestones & Defense</div>
+        <h2 class="slide-title">Conclusion & Project Roadmap</h2>
+        <p class="slide-subtitle">Review 1 deliverables fulfilled • Prepared for Review 2 (Week 11)</p>
+      </div>
+      <div class="slide-content">
+        <div class="grid-3">
+          <div class="card green-border">
+            <div class="card-title" style="color: var(--c-green);">Review 1 (Week 7)  [5 Marks]</div>
+            <div class="card-body">
+              <ul>
+                <li>Problem identification & boundaries</li>
+                <li>Classical Chen ER Model (13 entities)</li>
+                <li>3NF Relational Schema across 3 domains</li>
+                <li><strong style="color: var(--c-green);">STATUS: COMPLETED</strong></li>
+              </ul>
+            </div>
+          </div>
+          <div class="card blue-border">
+            <div class="card-title" style="color: var(--c-blue);">Review 2 (Week 11)  [Next]</div>
+            <div class="card-body">
+              <ul>
+                <li>Physical DDL execution in MySQL / PG</li>
+                <li>Complex multi-table join reporting</li>
+                <li>Analytical views: Bed Occupancy & Revenue</li>
+                <li>Conflict-checking database triggers</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card purple-border">
+            <div class="card-title" style="color: var(--c-purple);">Final Review (Week 14)</div>
+            <div class="card-body">
+              <ul>
+                <li>Full-stack application integration</li>
+                <li>UI for reception, doctors & billing</li>
+                <li>Role-based login & patient portal</li>
+                <li>End-to-end live system demonstration</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="card teal-border" style="margin-top: 14px; text-align: center;">
+          <div class="card-title" style="color: var(--c-teal); justify-content: center; font-size: 1.4rem;">Thank You  •  Questions & Discussion</div>
+          <div class="card-body">All schema scripts, high-resolution ER diagrams, and presentation assets are ready in the project repository.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="deck-controls">
+    <div class="btn-group">
+      <button class="nav-btn" id="prev-btn" onclick="prevSlide()">&#8592; Previous</button>
+      <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next &#8594;</button>
+      <span id="slide-indicator">Slide 1 of 9</span>
+    </div>
+    <div class="btn-group">
+      <button class="nav-btn" id="notes-btn" onclick="toggleNotes()">📝 Speaker Notes</button>
+      <button class="nav-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="nav-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+  </div>
+
+  <div id="notes-modal">
+    <div class="notes-title">
+      <span>Speaker Notes (Press 'N' to toggle)</span>
+      <span style="cursor: pointer;" onclick="toggleNotes()">&times;</span>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const indicator = document.getElementById('slide-indicator');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const notesModal = document.getElementById('notes-modal');
+    const notesContent = document.getElementById('notes-content');
+
+    function updateDeck() {
+      slides.forEach((slide, index) => {
+        if (index === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      indicator.textContent = `Slide ${currentSlide + 1} of ${totalSlides}`;
+      prevBtn.disabled = (currentSlide === 0);
+      nextBtn.disabled = (currentSlide === totalSlides - 1);
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+      const activeNotes = slides[currentSlide].getAttribute('data-notes') || 'No notes for this slide.';
+      notesContent.textContent = activeNotes;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateDeck();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateDeck();
+      }
+    }
+
+    function toggleNotes() {
+      notesModal.classList.toggle('show');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'n' || e.key === 'N') {
+        toggleNotes();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+    });
+
+    updateDeck();
+  </script>
+</body>
+</html>
