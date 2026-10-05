@@ -203,6 +203,7 @@ The database includes 5 precompiled views providing abstracted, role-tailored ac
 ```
 DBMS_PBL/
 ├── README.md                                # Comprehensive Project & Usage Guide
+├── Hospital_DBMS_PBL_Report.pdf             # Woxsen University Official PBL Academic Project Report
 ├── app.py                                   # Standalone Application Prototype (Web GUI + CLI)
 ├── Hospital_DBMS_Review1_Presentation.pptx  # Review 1 Deck (Chen ER, Scope & Schema)
 ├── Hospital_DBMS_Review2_Presentation.pptx  # Review 2 Deck (3NF, Triggers & 5 Views)
